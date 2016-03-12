@@ -68,3 +68,11 @@ provided::
   (*>>) :: Grammar s () -> Grammar s a -> Grammar s a
 
   bindG :: Grammar s a -> (a -> Grammar s b) -> (b -> a) -> Grammar s b
+
+
+By the way, I lied about the type of ``(<<$>>)``.  It can also be
+used with any old ``Prism'``.  A failed ``preview`` is a parse
+failure.  Isos are just prisms that never fail!  Here's the real
+type::
+
+  (<<$>>) :: Prism' a b -> Grammar s a -> Grammar s b
