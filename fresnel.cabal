@@ -1,0 +1,45 @@
+name:                fresnel
+version:             0.1.0.0
+synopsis:            Prism-based grammars for parsing and printing
+description:
+  fresnel provides combinators for composing prisms and isos
+  into grammars that can be used for both parsing and printing.
+
+  Grammars can read (or print to) any type that has an instance of
+  'Cons s s a a'.
+
+homepage:            https://github.com/frasertweedal/hs-fresnel
+bug-reports:         https://github.com/frasertweedal/hs-fresnel/issues
+license:             AGPL-3
+license-file:        agpl-3.0.txt
+author:              Fraser Tweedale
+maintainer:          frase@frase.id.au
+copyright:           Copyright (C) 2015  Fraser Tweedale
+category:            Data
+build-type:          Simple
+-- extra-source-files:  
+cabal-version:       >=1.10
+
+source-repository head
+  type: git
+  location: https://github.com/frasertweedale/hs-fresnel
+
+library
+  exposed-modules:
+    Data.Fresnel
+    , Data.Fresnel.Char
+    , Data.Fresnel.TH
+  -- other-modules:       
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:  -Wall
+
+  build-depends:
+    base >= 4 && < 5
+    , template-haskell
+    , bifunctors
+    , lens
+    , semigroups
+
+  if impl(ghc < 7.10)
+    build-depends: nats
