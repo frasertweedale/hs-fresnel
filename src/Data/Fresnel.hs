@@ -93,14 +93,7 @@ symbol a = satisfy (== a)
 -- "HELLO WORLD"
 --
 adapt, (<<$>>) :: Prism' a b -> Grammar s a -> Grammar s b
-adapt p g = withPrism g $ \as sesa ->
-  withPrism p $ \ba aeab ->
-    let
-      bs (b, s) = as (ba b, s)
-      sesb = sesa >=> \(a, s') -> case aeab a of
-        Left _ -> Left s'
-        Right b -> Right (b, s')
-    in prism bs sesb
+adapt p g = g . prism' (over _1 (review p)) (_1 (preview p))
 (<<$>>) = adapt
 infixr 4 <<$>>
 
