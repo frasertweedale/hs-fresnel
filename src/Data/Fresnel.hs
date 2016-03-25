@@ -180,14 +180,7 @@ many1 g = isoTupleNEL <<$>> g <<*>> many g where
 -- "123~"
 --
 (<<*) :: Grammar s a -> Grammar s () -> Grammar s a
-p <<* p' = withPrism p $ \as sesa ->
-  withPrism p' $ \bs sesb ->
-    let
-      as' (a, s) = as (a, bs ((), s))
-      sesa' = sesa >=> \(a, s') -> do
-        ((), s'') <- sesb s'
-        pure (a, s'')
-    in prism as' sesa'
+p1 <<* p2 = iso (\(a, ()) -> a) (\a -> (a, ())) <<$>> p1 <<*>> p2
 
 -- | Sequence two grammars, ignoring the first value.
 --
@@ -200,14 +193,7 @@ p <<* p' = withPrism p $ \as sesa ->
 -- "~123"
 --
 (*>>) :: Grammar s () -> Grammar s a -> Grammar s a
-p *>> p' = withPrism p $ \as sesa ->
-  withPrism p' $ \bs sesb ->
-    let
-      as' (b, s) = as ((), bs (b, s))
-      sesa' = sesa >=> \((), s') -> do
-        (b, s'') <- sesb s'
-        pure (b, s'')
-    in prism as' sesa'
+p1 *>> p2 = iso (\((), a) -> a) (\a -> ((), a)) <<$>> p1 <<*>> p2
 
 -- | Replicate a grammar N times
 --
