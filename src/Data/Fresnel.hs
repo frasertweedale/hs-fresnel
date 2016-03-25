@@ -107,14 +107,9 @@ infixr 4 <<$>>
 -- "42xyz"
 --
 productG, (<<*>>) :: Grammar s a -> Grammar s b -> Grammar s (a, b)
-productG p p' = withPrism p $ \as sesa ->
-  withPrism p' $ \bs sesb ->
-    let
-      as' ((a, b), s) = as (a, bs (b, s))
-      sesa' = sesa >=> \(a, s') -> do
-        (b, s'') <- sesb s'
-        pure ((a, b), s'')
-    in prism as' sesa'
+productG p1 p2 = p1 . prism'
+  (\((a, b), s) -> (a, review p2 (b, s)))
+  (\(a, s) -> first (a,) <$> preview p2 s)
 (<<*>>) = productG
 infixr 6 <<*>>
 
