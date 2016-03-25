@@ -94,7 +94,7 @@ symbol a = satisfy (== a)
 -- "HELLO WORLD"
 --
 adapt, (<<$>>) :: Prism' a b -> Grammar s a -> Grammar s b
-adapt p g = g . prism' (over _1 (review p)) (_1 (preview p))
+adapt p g = g . swapped . aside p . swapped
 (<<$>>) = adapt
 infixr 4 <<$>>
 
