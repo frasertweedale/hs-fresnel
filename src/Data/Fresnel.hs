@@ -1,5 +1,5 @@
 -- This file is part of fresnel
--- Copyright (C) 2015  Fraser Tweedale
+-- Copyright (C) 2015, 2016  Fraser Tweedale
 --
 -- fresnel is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,7 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TupleSections #-}
 
 module Data.Fresnel
   (
@@ -50,7 +51,7 @@ module Data.Fresnel
   ) where
 
 import Prelude hiding (print)
-import Control.Applicative ((<$>), pure)
+import Control.Applicative ((<$>), (<|>), pure)
 import Control.Monad ((>=>))
 import Data.Bifunctor (first)
 import Data.Monoid (Monoid, mempty)
@@ -131,15 +132,9 @@ infixr 6 <<*>>
 -- "xyz"
 --
 sumG, (<<+>>) :: Grammar s a -> Grammar s b -> Grammar s (Either a b)
-sumG p1 p2 = withPrism p1 $ \as sesa ->
-  withPrism p2 $ \bs sesb ->
-    let
-      eabs (Left a, s) = as (a, s)
-      eabs (Right b, s) = bs (b, s)
-      seseab s = case sesa s of
-        Left _ -> first Right <$> sesb s
-        r -> first Left <$> r
-    in prism eabs seseab
+sumG p1 p2 = prism'
+  (\(x, s) -> either (review p1 . (,s)) (review p2 . (,s)) x)
+  (\x -> first Left <$> preview p1 x  <|>  first Right <$> preview p2 x)
 (<<+>>) = sumG
 infixr 5 <<+>>
 
