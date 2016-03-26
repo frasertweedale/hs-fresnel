@@ -107,9 +107,8 @@ infixr 4 <<$>>
 -- "42xyz"
 --
 productG, (<<*>>) :: Grammar s a -> Grammar s b -> Grammar s (a, b)
-productG p1 p2 = p1 . prism'
-  (\((a, b), s) -> (a, review p2 (b, s)))
-  (\(a, s) -> first (a,) <$> preview p2 s)
+productG p1 p2 = p1 . aside p2
+  . iso (\(a, (b, s)) -> ((a, b), s)) (\((a, b), s) -> (a, (b, s)))
 (<<*>>) = productG
 infixr 6 <<*>>
 
