@@ -115,15 +115,17 @@ infixr 6 <<*>>
 
 -- | Choice between two grammars
 --
--- >>> let g = integralG <<+>> (many (satisfy isAlpha))
+-- >>> let g = integralG <<+>> satisfy isAlpha
 -- >>> parse g "-10!"
 -- Just (Left (-10))
 -- >>> parse g "abc!"
--- Just (Right "abc")
+-- Just (Right 'a')
+-- >>> parse g "???"
+-- Nothing
 -- >>> print g (Left 42) :: String
 -- "42"
--- >>> print g (Right "xyz") :: String
--- "xyz"
+-- >>> print g (Right 'x') :: String
+-- "x"
 --
 sumG, (<<+>>) :: Grammar s a -> Grammar s b -> Grammar s (Either a b)
 sumG p1 p2 = prism'
