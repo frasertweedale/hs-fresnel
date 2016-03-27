@@ -144,14 +144,14 @@ infixr 5 <<+>>
 -- "xyz"
 --
 many :: Grammar s a -> Grammar s [a]
-many p = withPrism p $ \bt seta ->
-  let
-    bt' ([], s) = s
-    bt' (a:as, s) = bt (a, bt' (as, s))
-    seta' s = case seta s of
-      Left _ -> Right ([], s)
-      Right (a, s') -> first (a:) <$> seta' s'
-  in prism bt' seta'
+many p = iso f g <<$>> (p <<*>> many p) <<+>> noop
+  where
+  f = either (uncurry (:)) (const [])
+  g (x:xs) = Left (x, xs)
+  g [] = Right ()
+
+noop :: Grammar s ()
+noop = prism' snd (Just . ((),))
 
 -- | Run the grammar as many times as possible and at least once.
 --
