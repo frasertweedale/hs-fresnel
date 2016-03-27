@@ -51,7 +51,7 @@ module Data.Fresnel
   ) where
 
 import Prelude hiding (print, replicate)
-import Control.Applicative ((<$>), (<|>), pure)
+import Control.Applicative ((<$>), (<|>))
 import Control.Monad ((>=>))
 import Data.Bifunctor (first)
 import Data.Monoid (Monoid, mempty)
@@ -276,11 +276,9 @@ literal a = withPrism (symbol a) $ \_ sesa ->
 -- ""
 --
 def :: Eq a => a -> Grammar s a -> Grammar s a
-def a' p = withPrism p $ \as sesa ->
-  let
-    as' (a, s) = if a == a' then s else as (a, s)
-    sesa' s = either (const (Right (a', s))) Right (sesa s)
-  in prism as' sesa'
+def a' p = iso f g <<$>> p <<+>> success a' where
+  f = either id id
+  g a = if a == a' then Right a else Left a
 
 -- | Make a grammar optional; a failed view yields 'Nothing' and
 -- a review of 'Nothing' writes nothing.
@@ -296,14 +294,9 @@ def a' p = withPrism p $ \as sesa ->
 -- ""
 --
 opt :: Grammar s a -> Grammar s (Maybe a)
-opt p = withPrism p $ \as sesa ->
-  let
-    as' (Just a, s) = as (a, s)
-    as' (Nothing, s) = s
-    sesa' s = case sesa s of
-      Left _ -> pure (Nothing, s)
-      Right (a, s') -> Right (Just a, s')
-  in prism as' sesa'
+opt p = iso f g <<$>> p <<+>> success () where
+  f = either Just (const Nothing)
+  g = maybe (Right ()) Left
 
 -- | Matches at end of input; writes nothing
 --
