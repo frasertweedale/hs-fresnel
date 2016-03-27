@@ -257,8 +257,7 @@ between l r a = l *>> a <<* r
 -- "$"
 --
 literal :: (Cons s s a a, Eq a) => a -> Grammar s ()
-literal a = withPrism (symbol a) $ \_ sesa ->
-  prism (\((), s) -> cons a s) (fmap (first (const ())) . sesa)
+literal a = iso (const ()) (const a) <<$>> symbol a
 
 -- | Give a default value for a grammar.
 --
