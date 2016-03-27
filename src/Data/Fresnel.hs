@@ -41,7 +41,7 @@ module Data.Fresnel
   , (<<*>>)
   , sumG
   , (<<+>>)
-  , replicateG
+  , replicate
   , bindG
   , adapt
   , (<<$>>)
@@ -50,7 +50,7 @@ module Data.Fresnel
   , Cons
   ) where
 
-import Prelude hiding (print)
+import Prelude hiding (print, replicate)
 import Control.Applicative ((<$>), (<|>), pure)
 import Control.Monad ((>=>))
 import Data.Bifunctor (first)
@@ -144,14 +144,20 @@ infixr 5 <<+>>
 -- "xyz"
 --
 many :: Grammar s a -> Grammar s [a]
-many p = iso f g <<$>> (p <<*>> many p) <<+>> noop
-  where
+many p = isoList <<$>> (p <<*>> many p) <<+>> success ()
+
+isoList :: Iso' (Either (a, [a]) ()) [a]
+isoList = iso f g where
   f = either (uncurry (:)) (const [])
   g (x:xs) = Left (x, xs)
   g [] = Right ()
 
-noop :: Grammar s ()
-noop = prism' snd (Just . ((),))
+failure :: Grammar s ()
+failure = prism' snd (const Nothing)
+
+success :: a -> Grammar s a
+success a = prism' snd (Just . (a,))
+
 
 -- | Run the grammar as many times as possible and at least once.
 --
@@ -196,7 +202,7 @@ p1 *>> p2 = iso (\((), a) -> a) (\a -> ((), a)) <<$>> p1 <<*>> p2
 
 -- | Replicate a grammar N times
 --
--- >>> let g = replicateG 3 (satisfy isAlpha)
+-- >>> let g = replicate 3 (satisfy isAlpha)
 -- >>> parse g "ab3"
 -- Nothing
 -- >>> parse g "abc"
@@ -206,22 +212,14 @@ p1 *>> p2 = iso (\((), a) -> a) (\a -> ((), a)) <<$>> p1 <<*>> p2
 -- >>> print g "ab" :: String  -- can't do much about this
 -- "ab"
 --
-replicateG :: Natural -> Grammar s a -> Grammar s [a]
-replicateG n g = withPrism g $ \as sesa ->
-  let
-    ass = ass' n
-    ass' 0 (_, s) = s
-    ass' _ ([], s) = s
-    ass' n' (x:xs, s) = as (x, ass' (n' - 1) (xs, s))
-    sesas = sesas' n
-    sesas' 0 = \s -> Right ([], s)
-    sesas' n' = sesa >=> \(a, s') -> first (a:) <$> sesas' (n' - 1) s'
-  in prism ass sesas
+replicate :: Natural -> Grammar s a -> Grammar s [a]
+replicate 0 _ = success []
+replicate n g = isoList <<$>> (g <<*>> replicate (n - 1) g) <<+>> failure
 
 -- | Sequence a grammar based on functions that return the next
 -- grammar and yield a determinant.
 --
--- >>> let g = bindG integralG (\n -> replicateG n (satisfy isAlpha)) (fromIntegral . length)
+-- >>> let g = bindG integralG (\n -> replicate n (satisfy isAlpha)) (fromIntegral . length)
 -- >>> parse g "3abc2de?"
 -- Just "abc"
 -- >>> parse g "3ab2de?"
