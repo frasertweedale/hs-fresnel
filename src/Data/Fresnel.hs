@@ -37,13 +37,10 @@ module Data.Fresnel
   , def
   , opt
   , eof
-  , productG
   , (<<*>>)
-  , sumG
   , (<<+>>)
   , replicate
-  , bindG
-  , adapt
+  , bind
   , (<<$>>)
 
   -- | Re-exports
@@ -78,7 +75,7 @@ symbol a = satisfy (== a)
 
 -- | Adapt the 'Grammar' with a 'Prism' or 'Iso'
 --
--- >>> let g = reversed `adapt` many (satisfy isAlpha)
+-- >>> let g = reversed <<$>> many (satisfy isAlpha)
 -- >>> parse g "live!"
 -- Just "evil"
 -- >>> print g "evil" :: String
@@ -93,9 +90,8 @@ symbol a = satisfy (== a)
 -- >>> print g "hello world" :: String
 -- "HELLO WORLD"
 --
-adapt, (<<$>>) :: Prism' a b -> Grammar s a -> Grammar s b
-adapt p g = g . swapped . aside p . swapped
-(<<$>>) = adapt
+(<<$>>) :: Prism' a b -> Grammar s a -> Grammar s b
+p <<$>> g = g . swapped . aside p . swapped
 infixr 4 <<$>>
 
 -- | Sequence two grammars and combine their results as a tuple
@@ -106,10 +102,9 @@ infixr 4 <<$>>
 -- >>> print g (42, "xyz") :: String
 -- "42xyz"
 --
-productG, (<<*>>) :: Grammar s a -> Grammar s b -> Grammar s (a, b)
-productG p1 p2 = p1 . aside p2
+(<<*>>) :: Grammar s a -> Grammar s b -> Grammar s (a, b)
+p1 <<*>> p2 = p1 . aside p2
   . iso (\(a, (b, s)) -> ((a, b), s)) (\((a, b), s) -> (a, (b, s)))
-(<<*>>) = productG
 infixr 6 <<*>>
 
 
@@ -127,11 +122,10 @@ infixr 6 <<*>>
 -- >>> print g (Right 'x') :: String
 -- "x"
 --
-sumG, (<<+>>) :: Grammar s a -> Grammar s b -> Grammar s (Either a b)
-sumG p1 p2 = prism'
+(<<+>>) :: Grammar s a -> Grammar s b -> Grammar s (Either a b)
+p1 <<+>> p2 = prism'
   (\(x, s) -> either (review p1 . (,s)) (review p2 . (,s)) x)
   (\x -> first Left <$> preview p1 x  <|>  first Right <$> preview p2 x)
-(<<+>>) = sumG
 infixr 5 <<+>>
 
 -- | Run the grammar as many times as possible on the input,
@@ -221,7 +215,7 @@ replicate n g = isoList <<$>> (g <<*>> replicate (n - 1) g) <<+>> failure
 -- | Sequence a grammar based on functions that return the next
 -- grammar and yield a determinant.
 --
--- >>> let g = bindG integralG (\n -> replicate n (satisfy isAlpha)) (fromIntegral . length)
+-- >>> let g = bind integralG (\n -> replicate n (satisfy isAlpha)) (fromIntegral . length)
 -- >>> parse g "3abc2de?"
 -- Just "abc"
 -- >>> parse g "3ab2de?"
@@ -231,8 +225,8 @@ replicate n g = isoList <<$>> (g <<*>> replicate (n - 1) g) <<+>> failure
 -- >>> print (many g) ["hello", "world"] :: String
 -- "5hello5world"
 --
-bindG :: Grammar s a -> (a -> Grammar s b) -> (b -> a) -> Grammar s b
-bindG p f g = prism'
+bind :: Grammar s a -> (a -> Grammar s b) -> (b -> a) -> Grammar s b
+bind p f g = prism'
   (\(b, s) -> review p (g b, review (f (g b)) (b, s)))
   (preview p >=> \(a, s') -> preview (f a) s')
 
