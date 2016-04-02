@@ -96,7 +96,7 @@ infixr 4 <<$>>
 
 -- | Sequence two grammars and combine their results as a tuple
 --
--- >>> let g = integralG <<*>> many (satisfy isAlpha)
+-- >>> let g = integral <<*>> many (satisfy isAlpha)
 -- >>> parse g "-10abc"
 -- Just (-10,"abc")
 -- >>> print g (42, "xyz") :: String
@@ -110,7 +110,7 @@ infixr 6 <<*>>
 
 -- | Choice between two grammars
 --
--- >>> let g = integralG <<+>> satisfy isAlpha
+-- >>> let g = integral <<+>> satisfy isAlpha
 -- >>> parse g "-10!"
 -- Just (Left (-10))
 -- >>> parse g "abc!"
@@ -172,7 +172,7 @@ many1 g = isoTupleNEL <<$>> g <<*>> many g where
 
 -- | Sequence two grammars, ignoring the second value.
 --
--- >>> let g = integralG <<* literal '~'
+-- >>> let g = integral <<* literal '~'
 -- >>> parse g "123~"
 -- Just 123
 -- >>> parse g "123!"
@@ -185,7 +185,7 @@ p1 <<* p2 = iso (\(a, ()) -> a) (\a -> (a, ())) <<$>> p1 <<*>> p2
 
 -- | Sequence two grammars, ignoring the first value.
 --
--- >>> let g = literal '~' *>> integralG
+-- >>> let g = literal '~' *>> integral
 -- >>> parse g "~123"
 -- Just 123
 -- >>> parse g "123"
@@ -215,7 +215,7 @@ replicate n g = isoList <<$>> (g <<*>> replicate (n - 1) g) <<+>> failure
 -- | Sequence a grammar based on functions that return the next
 -- grammar and yield a determinant.
 --
--- >>> let g = bind integralG (\n -> replicate n (satisfy isAlpha)) (fromIntegral . length)
+-- >>> let g = bind integral (\n -> replicate n (satisfy isAlpha)) (fromIntegral . length)
 -- >>> parse g "3abc2de?"
 -- Just "abc"
 -- >>> parse g "3ab2de?"
@@ -233,7 +233,7 @@ bind p f g = prism'
 -- | Given left and right "surrounding" grammars and an interior
 -- grammar sequence all three, discarding the surrounds.
 --
--- >>> let g = between (literal '<') (literal '>') integralG
+-- >>> let g = between (literal '<') (literal '>') integral
 -- >>> parse g "<-123>"
 -- Just (-123)
 -- >>> print g 42 :: String
@@ -258,7 +258,7 @@ literal a = iso (const ()) (const a) <<$>> symbol a
 -- A defaulted grammar can always be viewed.  If a reviewed value
 -- is equal to the default nothing is written.
 --
--- >>> let g = def 0 integralG
+-- >>> let g = def 0 integral
 -- >>> parse g "1~"
 -- Just 1
 -- >>> parse g "~"
@@ -276,7 +276,7 @@ def a' p = iso f g <<$>> p <<+>> success a' where
 -- | Make a grammar optional; a failed view yields 'Nothing' and
 -- a review of 'Nothing' writes nothing.
 --
--- >>> let g = opt integralG
+-- >>> let g = opt integral
 -- >>> parse g "1~"
 -- Just (Just 1)
 -- >>> parse g "~"
