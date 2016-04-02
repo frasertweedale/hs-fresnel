@@ -20,7 +20,8 @@
 
 module Data.Fresnel.Char
   (
-    integral
+    digit
+  , integral
   ) where
 
 import Prelude hiding (print)
@@ -32,6 +33,9 @@ import Data.Fresnel
 -- $setup
 -- >>> import Numeric.Natural
 -- >>> import Data.Fresnel
+
+digit :: (Cons s s Char Char) => Grammar s Char
+digit = satisfy isDigit
 
 -- |
 -- >>> parse integral "01." :: Maybe Integer
@@ -48,4 +52,4 @@ integral
   => Grammar s a
 integral =
   iso (\(c,s) -> maybe s (:s) c) (Nothing,) . _Show
-  <<$>> (opt (symbol '-')) <<*>> (many (satisfy isDigit))
+  <<$>> (opt (symbol '-')) <<*>> (many digit)
