@@ -102,6 +102,12 @@ infixr 4 <<$>>
 -- >>> print g (42, "xyz") :: String
 -- "42xyz"
 --
+-- >>> data Chars3 = Chars3 Char Char Char deriving (Show)
+-- >>> let c3iso = iso (\(x,(y,z)) -> Chars3 x y z) (\(Chars3 x y z) -> (x,(y,z)))
+-- >>> let g = c3iso <<$>> digit <<*>> digit <<*>> digit
+-- >>> parse g "007"
+-- Just (Chars3 '0' '0' '7')
+--
 (<<*>>) :: Grammar s a -> Grammar s b -> Grammar s (a, b)
 p1 <<*>> p2 = p1 . aside p2
   . iso (\(a, (b, s)) -> ((a, b), s)) (\((a, b), s) -> (a, (b, s)))
