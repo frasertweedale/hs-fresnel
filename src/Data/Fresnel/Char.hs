@@ -20,7 +20,7 @@
 
 module Data.Fresnel.Char
   (
-    integralG
+    integral
   ) where
 
 import Prelude hiding (print)
@@ -34,18 +34,18 @@ import Data.Fresnel
 -- >>> import Data.Fresnel
 
 -- |
--- >>> parse integralG "01." :: Maybe Integer
+-- >>> parse integral "01." :: Maybe Integer
 -- Just 1
--- >>> parse integralG "-1" :: Maybe Natural
+-- >>> parse integral "-1" :: Maybe Natural
 -- Nothing
--- >>> print integralG 42 :: String
+-- >>> print integral 42 :: String
 -- "42"
--- >>> print integralG (-42) :: String
+-- >>> print integral (-42) :: String
 -- "-42"
 --
-integralG
+integral
   :: (Cons s s Char Char, Integral a, Read a, Show a)
   => Grammar s a
-integralG =
+integral =
   iso (\(c,s) -> maybe s (:s) c) (Nothing,) . _Show
-  <<$>> productG (opt (symbol '-')) (many (satisfy isDigit))
+  <<$>> (opt (symbol '-')) <<*>> (many (satisfy isDigit))
