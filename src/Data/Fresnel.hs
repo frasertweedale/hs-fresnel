@@ -232,11 +232,9 @@ replicate n g = isoList <<$>> (g <<*>> replicate (n - 1) g) <<+>> failure
 -- "5hello5world"
 --
 bindG :: Grammar s a -> (a -> Grammar s b) -> (b -> a) -> Grammar s b
-bindG g f ba = withPrism g $ \as sesa ->
-  let
-    bs (b, s) = let a = ba b in as (a, review (f a) (b, s))
-    sesb = sesa >=> \(a, s') -> withPrism (f a) $ \_ sesb' -> sesb' s'
-  in prism bs sesb
+bindG p f g = prism'
+  (\(b, s) -> review p (g b, review (f (g b)) (b, s)))
+  (preview p >=> \(a, s') -> preview (f a) s')
 
 -- | Given left and right "surrounding" grammars and an interior
 -- grammar sequence all three, discarding the surrounds.
