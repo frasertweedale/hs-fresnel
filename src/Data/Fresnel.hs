@@ -309,11 +309,7 @@ opt p = iso f g <<$>> p <<+>> success () where
 -- ""
 --
 eof :: Cons s s a a => Grammar s ()
-eof = prism as sesa where
-  as ((), s) = s
-  sesa s = case uncons s of
-    Just _ -> Left s
-    Nothing -> Right ((), s)
+eof = prism' snd (\s -> maybe (Just ((), s)) (const Nothing) (uncons s))
 
 -- | Parse with a grammar, discarding any remaining input.
 --
