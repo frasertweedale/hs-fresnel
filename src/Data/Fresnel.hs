@@ -51,8 +51,8 @@ module Data.Fresnel
   ) where
 
 import Prelude hiding (print, replicate)
-import Control.Applicative ((<$>), (<|>))
-import Control.Monad ((>=>))
+import Control.Applicative ((<$>), (<|>), pure)
+import Control.Monad ((>=>), guard)
 import Data.Bifunctor (first)
 import Data.Monoid (Monoid, mempty)
 import Numeric.Natural (Natural)
@@ -71,7 +71,7 @@ element :: Cons s s a a => Grammar s a
 element = _Cons
 
 satisfy :: Cons s s a a => (a -> Bool) -> Grammar s a
-satisfy f = prism id (\a -> if f a then Right a else Left a) <<$>> element
+satisfy f = prism' id (\a -> guard (f a) >> pure a) <<$>> element
 
 symbol :: (Cons s s a a, Eq a) => a -> Grammar s a
 symbol a = satisfy (== a)
