@@ -37,7 +37,7 @@ generic parser/printer that work with many types that can be
 
   many1 :: Grammar s a -> Grammar s (NonEmpty a)
 
-  replicateG :: Natural -> Grammar s a -> Grammar s [a]
+  replicate :: Natural -> Grammar s a -> Grammar s [a]
 
 
 The analogue of ``fmap``/``(<$>)`` is ``(<<$>>)`` which composes an
@@ -67,7 +67,7 @@ provided::
 
   (*>>) :: Grammar s () -> Grammar s a -> Grammar s a
 
-  bindG :: Grammar s a -> (a -> Grammar s b) -> (b -> a) -> Grammar s b
+  bind :: Grammar s a -> (a -> Grammar s b) -> (b -> a) -> Grammar s b
 
 
 By the way, I lied about the type of ``(<<$>>)``.  It can also be
