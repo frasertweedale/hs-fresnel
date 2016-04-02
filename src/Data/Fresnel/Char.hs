@@ -16,7 +16,6 @@
 
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TupleSections #-}
-{-# OPTIONS_GHC -ddump-splices #-}
 
 module Data.Fresnel.Char
   (
@@ -52,4 +51,4 @@ integral
   => Grammar s a
 integral =
   iso (\(c,s) -> maybe s (:s) c) (Nothing,) . _Show
-  <<$>> (opt (symbol '-')) <<*>> (many digit)
+  <<$>> opt (symbol '-') <<*>> many digit
