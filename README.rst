@@ -49,7 +49,7 @@ parser/printers out of prisms and isos.  A parser/printer is a
   type Grammar s a = Prism' s (a, s)
 
 
-The prism can be reviewed to parse, and previewed to print.  The
+The prism can be previewed to parse, and reviewed to print.  The
 ``parse`` and ``print`` functions are provided for convenience.
 
 .. code:: haskell
