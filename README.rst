@@ -42,13 +42,17 @@ Library overview
 
 *fresnel* is a combinator library for building first class unified
 parser/printers out of prisms and isos.  A parser/printer is a
-``Prism``, but most functions reference the ``Grammar`` type alias::
+``Prism``, but most functions reference the ``Grammar`` type alias:
+
+.. code:: haskell
 
   type Grammar s a = Prism' s (a, s)
 
 
 The prism can be reviewed to parse, and previewed to print.  The
-``parse`` and ``print`` functions are provided for convenience::
+``parse`` and ``print`` functions are provided for convenience.
+
+.. code:: haskell
 
   parse :: Grammar s b -> s -> Maybe b
   parse g s = fst <$> preview g s
@@ -62,7 +66,7 @@ Many familiar combinators are provided.  Some have the
 generic parser/printer that work with many types that can be
 (de)constructed "piecewise".
 
-::
+.. code:: haskell
 
   satisfy :: Cons s s a a => (a -> Bool) -> Grammar s a
 
@@ -82,17 +86,17 @@ generic parser/printer that work with many types that can be
 The analogue of ``fmap``/``(<$>)`` is ``(<<$>>)`` which composes an
 ``Iso`` into the grammar.
 
-::
+.. code:: haskell
 
   (<<$>>) :: Iso' a b -> Grammar s a -> Grammar s b
 
 
 Product types (records) and sum types (choices) can be handled with
 special combinators in conjunction with isos.  *Template Haskell*
-code is provided for automatically generating appropriate ``Iso``
-values for your types.
+code is provided for automatically generating appropriate ``Iso``s
+for your types.
 
-::
+.. code:: haskell
 
   (<<*>>) :: Grammar s a -> Grammar s b -> Grammar s (a, b)
 
@@ -100,7 +104,9 @@ values for your types.
 
 
 Combinators for sequencing and an analogue of ``(>>=)`` are also
-provided::
+provided.
+
+.. code:: haskell
 
   (<<*) :: Grammar s a -> Grammar s () -> Grammar s a
 
@@ -112,13 +118,17 @@ provided::
 By the way, I lied about the type of ``(<<$>>)``.  It can also be
 used with any old ``Prism'``.  A failed ``preview`` is a parse
 failure.  Isos are just prisms that never fail!  Here's the real
-type::
+type:
+
+.. code:: haskell
 
   (<<$>>) :: Prism' a b -> Grammar s a -> Grammar s b
 
 
 You can consume and print a literal value, or match an arbitrary
-grammar while printing a "canonical" value on review::
+grammar while printing a "canonical" value on review.
+
+.. code:: haskell
 
   literal :: (Cons s s a a, Eq a) => a -> Grammar s ()
 
@@ -128,8 +138,10 @@ grammar while printing a "canonical" value on review::
 Mapping to/from custom data types
 ---------------------------------
 
-You can automatically generate ``Iso`` values for custom data types
-via the ``makeIso`` Template Haskell function::
+You can automatically generate ``Iso``s for custom data types
+via the ``makeIso`` Template Haskell function.
+
+.. code:: haskell
 
   {-# LANGUAGE TemplateHaskell #-}
 
@@ -138,6 +150,8 @@ via the ``makeIso`` Template Haskell function::
   data Foo = A Int Char | B Bool
   makeIso ''Foo
 
-This will create the ``Iso``::
+This will create the ``Iso``:
+
+.. code:: haskell
 
   _Foo :: Iso' (Either (Int, Char) Bool) Foo
