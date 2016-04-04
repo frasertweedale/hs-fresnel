@@ -1,6 +1,45 @@
 Prism-based unified parsers and pretty printers
 ===============================================
 
+Synopsis
+--------
+
+Defining a grammar:
+
+.. code:: haskell
+
+  {-# LANGUAGE TemplateHaskell #-}
+
+  import Data.Fresnel
+  import Data.Fresnel.Char
+  import Data.Fresnel.TH
+
+  -- | A contrived and poorly-constrained type for phone numbers
+  --
+  data PhoneNumber = PhoneNumber
+    { phoneAreaCode :: String
+    , phoneNumber :: String
+    }
+  makeIso ''PhoneNumber
+
+  phoneNumberG :: Cons s s Char Char => Grammar s PhoneNumber
+  phoneNumberG = _PhoneNumber <<$>>
+    literal '(' *>> replicate 2 digit <<* literal ')'
+    <<*   match (many space) " "
+    <<*>> replicate 8 (match (many space) "" *>> digit)
+
+Using a grammar::
+
+  λ> parse phoneNumberG ("(07)3456  78  9  0" :: String)
+  Just (PhoneNumber "07" "34567890")
+
+  λ> print phoneNumberG (PhoneNumber "07" "34567890") :: String
+  "(07) 34567890"
+
+
+Library overview
+----------------
+
 *fresnel* is a combinator library for building first class unified
 parser/printers out of prisms and isos.  A parser/printer is a
 ``Prism``, but most functions reference the ``Grammar`` type alias::
@@ -85,6 +124,9 @@ grammar while printing a "canonical" value on review::
 
   match :: Grammar s a -> a -> Grammar s ()
 
+
+Mapping to/from custom data types
+---------------------------------
 
 You can automatically generate ``Iso`` values for custom data types
 via the ``makeIso`` Template Haskell function::
