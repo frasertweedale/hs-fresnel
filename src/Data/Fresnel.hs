@@ -112,7 +112,7 @@ infixr 4 <<$>>
 (<<*>>) :: Grammar s a -> Grammar s b -> Grammar s (a, b)
 p1 <<*>> p2 = p1 . aside p2
   . iso (\(a, (b, s)) -> ((a, b), s)) (\((a, b), s) -> (a, (b, s)))
-infixr 6 <<*>>
+infixl 6 <<*>>
 
 
 -- | Choice between two grammars
@@ -133,7 +133,7 @@ infixr 6 <<*>>
 p1 <<+>> p2 = prism'
   (\(x, s) -> either (review p1 . (,s)) (review p2 . (,s)) x)
   (\x -> first Left <$> preview p1 x  <|>  first Right <$> preview p2 x)
-infixr 5 <<+>>
+infixl 5 <<+>>
 
 -- | Run the grammar as many times as possible on the input,
 -- returning or consuming a list.
@@ -189,6 +189,7 @@ many1 g = isoTupleNEL <<$>> g <<*>> many g where
 --
 (<<*) :: Grammar s a -> Grammar s () -> Grammar s a
 p1 <<* p2 = iso (\(a, ()) -> a) (\a -> (a, ())) <<$>> p1 <<*>> p2
+infixl 6 <<*
 
 -- | Sequence two grammars, ignoring the first value.
 --
@@ -202,6 +203,7 @@ p1 <<* p2 = iso (\(a, ()) -> a) (\a -> (a, ())) <<$>> p1 <<*>> p2
 --
 (*>>) :: Grammar s () -> Grammar s a -> Grammar s a
 p1 *>> p2 = iso (\((), a) -> a) (\a -> ((), a)) <<$>> p1 <<*>> p2
+infixl 6 *>>
 
 -- | Replicate a grammar N times
 --
