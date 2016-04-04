@@ -76,3 +76,26 @@ failure.  Isos are just prisms that never fail!  Here's the real
 type::
 
   (<<$>>) :: Prism' a b -> Grammar s a -> Grammar s b
+
+
+You can consume and print a literal value, or match an arbitrary
+grammar while printing a "canonical" value on review::
+
+  literal :: (Cons s s a a, Eq a) => a -> Grammar s ()
+
+  match :: Grammar s a -> a -> Grammar s ()
+
+
+You can automatically generate ``Iso`` values for custom data types
+via the ``makeIso`` Template Haskell function::
+
+  {-# LANGUAGE TemplateHaskell #-}
+
+  import Data.Fresnel.TH (makeIso)
+
+  data Foo = A Int Char | B Bool
+  makeIso ''Foo
+
+This will create the ``Iso``::
+
+  _Foo :: Iso' (Either (Int, Char) Bool) Foo
