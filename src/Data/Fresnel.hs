@@ -34,6 +34,7 @@ module Data.Fresnel
   , (*>>)
   , between
   , literal
+  , match
   , def
   , opt
   , eof
@@ -257,7 +258,20 @@ between l r a = l *>> a <<* r
 -- "$"
 --
 literal :: (Cons s s a a, Eq a) => a -> Grammar s ()
-literal a = iso (const ()) (const a) <<$>> symbol a
+literal a = match (symbol a) a
+
+-- | Match grammar and discard result.  Print "canonical" value.
+--
+-- >>> let g = match (many1 (symbol '>') <<*>> many1 space) ('>' :| ">>", ' ' :| "")
+-- >>> parse g ">>> foo"
+-- Just ()
+-- >>> parse g ">>>>foo"
+-- Nothing
+-- >>> print g () :: String
+-- ">>> "
+--
+match :: Grammar s a -> a -> Grammar s ()
+match g a = iso (const ()) (const a) <<$>> g
 
 -- | Give a default value for a grammar.
 --

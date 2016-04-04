@@ -20,12 +20,13 @@
 module Data.Fresnel.Char
   (
     digit
+  , space
   , integral
   ) where
 
 import Prelude hiding (print)
 import Control.Lens
-import Data.Char (isDigit)
+import Data.Char (isDigit, isSpace)
 
 import Data.Fresnel
 
@@ -33,8 +34,9 @@ import Data.Fresnel
 -- >>> import Numeric.Natural
 -- >>> import Data.Fresnel
 
-digit :: (Cons s s Char Char) => Grammar s Char
+digit, space :: (Cons s s Char Char) => Grammar s Char
 digit = satisfy isDigit
+space = satisfy isSpace
 
 -- |
 -- >>> parse integral "01." :: Maybe Integer
