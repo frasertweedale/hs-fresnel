@@ -93,8 +93,8 @@ The analogue of ``fmap``/``(<$>)`` is ``(<<$>>)`` which composes an
 
 Product types (records) and sum types (choices) can be handled with
 special combinators in conjunction with isos.  *Template Haskell*
-code is provided for automatically generating appropriate ``Iso``s
-for your types.
+code is provided for automatically generating appropriate ``Iso``
+values for your types.
 
 .. code:: haskell
 
@@ -138,7 +138,7 @@ grammar while printing a "canonical" value on review.
 Mapping to/from custom data types
 ---------------------------------
 
-You can automatically generate ``Iso``s for custom data types
+You can automatically generate ``Iso`` values for custom data types
 via the ``makeIso`` Template Haskell function.
 
 .. code:: haskell
