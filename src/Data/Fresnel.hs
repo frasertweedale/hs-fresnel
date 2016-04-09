@@ -28,6 +28,8 @@ module Data.Fresnel
   , element
   , satisfy
   , symbol
+  , success
+  , failure
   , many
   , many1
   , (<<*)

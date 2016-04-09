@@ -63,9 +63,9 @@ import Control.Lens (_2, _3, Iso', iso, view)
 --
 -- The name of the 'Iso' is the type name prepended with a '_'.
 --
--- >>> data Foo = Con1 Char Char Char | Con2 Char Char | Con3 Char deriving (Show) ; makeIso ''Foo
+-- >>> data Foo = Con1 Char Char Char | Con2 Char Char | Con3 Char | Con4 deriving (Show) ; makeIso ''Foo
 -- >>> let e = element
--- >>> let g = _Foo <<$>> e <<*>> e <<*>> e <<+>> e <<*>> e <<+>> e
+-- >>> let g = _Foo <<$>> e <<*>> e <<*>> e <<+>> e <<*>> e <<+>> e <<+>> success ()
 -- >>> parse g "abc"
 -- Just (Con1 'a' 'b' 'c')
 -- >>> parse g "ab"
@@ -73,7 +73,7 @@ import Control.Lens (_2, _3, Iso', iso, view)
 -- >>> parse g "a"
 -- Just (Con3 'a')
 -- >>> parse g ""
--- Nothing
+-- Just Con4
 --
 makeIso :: Name -> Q [Dec]
 makeIso = makeIsoWith ('_':)
