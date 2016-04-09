@@ -133,7 +133,7 @@ infixl 6 <<*>>
 p1 <<+>> p2 = prism'
   (\(x, s) -> either (review p1 . (,s)) (review p2 . (,s)) x)
   (\x -> first Left <$> preview p1 x  <|>  first Right <$> preview p2 x)
-infixl 5 <<+>>
+infixr 5 <<+>>
 
 -- | Run the grammar as many times as possible on the input,
 -- returning or consuming a list.
