@@ -1,4 +1,4 @@
 import Test.DocTest
 
 main :: IO ()
-main = doctest ["-XFlexibleContexts", "src/"]
+main = doctest ["-XFlexibleContexts", "-XTemplateHaskell", "src/"]

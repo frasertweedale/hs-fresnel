@@ -104,7 +104,7 @@ infixr 4 <<$>>
 -- "42xyz"
 --
 -- >>> data Chars3 = Chars3 Char Char Char deriving (Show)
--- >>> let c3iso = iso (\(x,(y,z)) -> Chars3 x y z) (\(Chars3 x y z) -> (x,(y,z)))
+-- >>> let c3iso = iso (\((x,y),z) -> Chars3 x y z) (\(Chars3 x y z) -> ((x,y),z))
 -- >>> let g = c3iso <<$>> digit <<*>> digit <<*>> digit
 -- >>> parse g "007"
 -- Just (Chars3 '0' '0' '7')

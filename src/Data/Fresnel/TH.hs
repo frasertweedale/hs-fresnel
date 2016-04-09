@@ -49,7 +49,11 @@ import Control.Applicative ((<$>))
 import Control.Monad (replicateM, zipWithM)
 import Language.Haskell.TH
 
-import Control.Lens
+import Control.Lens (_2, _3, Iso', iso, view)
+
+-- $setup
+-- >>> import Data.Fresnel
+-- >>> import Data.Fresnel.Char
 
 -- | Make an 'Iso' for the named type.
 --
@@ -58,6 +62,18 @@ import Control.Lens
 -- structure.
 --
 -- The name of the 'Iso' is the type name prepended with a '_'.
+--
+-- >>> data Foo = Con1 Int Int Int | Con2 Char Char Char deriving (Show) ; makeIso ''Foo
+-- >>> let int = integral <<* literal ' '
+-- >>> let g = _Foo <<$>> int <<*>> int <<*>> int <<+>> element <<*>> element <<*>> element
+-- >>> parse g "10 20 30 "
+-- Just (Con1 10 20 30)
+-- >>> parse g "abc"
+-- Just (Con2 'a' 'b' 'c')
+-- >>> parse g "10 20 30"
+-- Just (Con2 '1' '0' ' ')
+-- >>> parse g "ab"
+-- Nothing
 --
 makeIso :: Name -> Q [Dec]
 makeIso = makeIsoWith ('_':)
@@ -99,7 +115,7 @@ sigFromCon (ForallC {}) =
 sigFromTypes :: [Type] -> Type
 sigFromTypes [] = TupleT 0
 sigFromTypes [t] = t
-sigFromTypes (t:ts) = TupleT 2 `AppT` t `AppT` sigFromTypes ts
+sigFromTypes ts = TupleT 2 `AppT` sigFromTypes (init ts) `AppT` last ts
 
 defFromName :: Name -> [Con] -> Q Dec
 defFromName n' cs = do
@@ -150,4 +166,4 @@ nestedSum f n i pat =
 nested :: ([t] -> t) -> [t] -> t
 nested tup []      =  tup []
 nested _   [x]     =  x
-nested tup (x:xs)  =  tup [x, nested tup xs]
+nested tup xs      =  tup [nested tup (init xs), last xs]
