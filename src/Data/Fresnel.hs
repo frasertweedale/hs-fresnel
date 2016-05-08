@@ -51,8 +51,8 @@ module Data.Fresnel
   ) where
 
 import Prelude hiding (print, replicate)
-import Control.Applicative ((<$>), (<|>), pure)
-import Control.Monad ((>=>), guard)
+import Control.Applicative ((<$>), (<|>))
+import Control.Monad ((>=>))
 import Data.Bifunctor (first)
 import Data.Monoid (Monoid, mempty)
 import Numeric.Natural (Natural)
@@ -70,9 +70,29 @@ type Grammar s a = Prism' s (a, s)
 element :: Cons s s a a => Grammar s a
 element = _Cons
 
+-- | Check element matches a predicate.
+--
+-- Note: This is /not/ a legal 'Prism', unless you are very careful
+-- not to review an element that fails the predicate.
+--
+-- >>> parse (satisfy isAlpha) "a1"
+-- Just 'a'
+-- >>> parse (satisfy isAlpha) "1a"
+-- Nothing
+--
 satisfy :: Cons s s a a => (a -> Bool) -> Grammar s a
-satisfy f = prism' id (\a -> guard (f a) >> pure a) <<$>> element
+satisfy f = element . filtered (f . fst)
 
+-- | Check element for equality.
+--
+-- Note: This is /not/ a legal 'Prism', unless you are very careful
+-- to only review values that are equal to the given element.
+--
+-- >>> parse (symbol 'a') "a1"
+-- Just 'a'
+-- >>> parse (symbol 'a') "1a"
+-- Nothing
+--
 symbol :: (Cons s s a a, Eq a) => a -> Grammar s a
 symbol a = satisfy (== a)
 
