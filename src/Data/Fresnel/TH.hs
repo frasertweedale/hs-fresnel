@@ -33,6 +33,7 @@
 -- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Data.Fresnel.TH
@@ -85,8 +86,13 @@ makeIsoWith f d = do
   info <- reify d
   let
     (n, cs) = case info of
+#if ! MIN_VERSION_template_haskell(2,11,0)
       TyConI (DataD _ n' _ cs' _) -> (n', cs')
       TyConI (NewtypeD _ n' _ c _) -> (n', [c])
+#else
+      TyConI (DataD _ n' _ _ cs' _) -> (n', cs')
+      TyConI (NewtypeD _ n' _ _ c _) -> (n', [c])
+#endif
       _ -> error $ show d
         ++ " neither denotes a data or newtype declaration. Found: "
         ++ show info
@@ -111,6 +117,12 @@ sigFromCon (RecC _ fields) = sigFromTypes (map (view _3) fields)
 sigFromCon (InfixC (_,t1) _ (_,t2)) = sigFromTypes [t1, t2]
 sigFromCon (ForallC {}) =
   error "makeIso not available for existential data constructors"
+#if MIN_VERSION_template_haskell(2,11,0)
+sigFromCon (GadtC {}) =
+  error "makeIso not available for GADT constructors"
+sigFromCon (RecGadtC {}) =
+  error "makeIso not available for GADT constructors"
+#endif
 
 sigFromTypes :: [Type] -> Type
 sigFromTypes [] = TupleT 0
@@ -137,6 +149,12 @@ fgFromCon nCons i (RecC n fields) = fgClauses nCons i (length fields) n
 fgFromCon nCons i (InfixC _ n _) = fgClauses nCons i 2 n
 fgFromCon _ _ (ForallC {}) =
   error "makeIso not available for existential data constructors"
+#if MIN_VERSION_template_haskell(2,11,0)
+fgFromCon _ _ (GadtC {}) =
+  error "makeIso not available for GADT constructors"
+fgFromCon _ _ (RecGadtC {}) =
+  error "makeIso not available for GADT constructors"
+#endif
 
 fgClauses :: Int -> Int -> Int -> Name -> Q (Clause, Clause)
 fgClauses nCons i nFields n = do
