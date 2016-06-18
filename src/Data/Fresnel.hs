@@ -51,10 +51,9 @@ module Data.Fresnel
   ) where
 
 import Prelude hiding (print, replicate)
-import Control.Applicative ((<$>), (<|>))
+import Control.Applicative ((<|>))
 import Control.Monad ((>=>))
 import Data.Bifunctor (first)
-import Data.Monoid (Monoid, mempty)
 import Numeric.Natural (Natural)
 
 import Control.Lens hiding (element)

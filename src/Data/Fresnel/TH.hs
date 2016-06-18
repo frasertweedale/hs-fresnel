@@ -46,7 +46,6 @@ module Data.Fresnel.TH
   , iso
   ) where
 
-import Control.Applicative ((<$>))
 import Control.Monad (replicateM, zipWithM)
 import Language.Haskell.TH
 
