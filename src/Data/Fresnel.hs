@@ -35,6 +35,8 @@ module Data.Fresnel
   , (<<*)
   , (*>>)
   , between
+  , sepBy
+  , sepBy1
   , literal
   , match
   , def
@@ -279,6 +281,36 @@ bind p f g = prism'
 --
 between :: Grammar s () -> Grammar s () -> Grammar s a -> Grammar s a
 between l r a = l *>> a <<* r
+
+-- | Given grammars for element and separator, construct grammar for
+-- elements separated by the separator.
+--
+-- >>> let g = satisfy isDigit `sepBy` literal '.'
+-- >>> parse g "1.2.3."
+-- Just "123"
+-- >>> parse g "."
+-- Just ""
+-- >>> print g "123" :: String
+-- "1.2.3"
+--
+sepBy :: Grammar s a -> Grammar s () -> Grammar s [a]
+sepBy g sep = isoList <<$>> (g <<*>> many (sep *>> g)) <<+>> success ()
+
+-- | Given grammars for element and separator, construct grammar for
+-- elements separated by the separator, with at least one element.
+--
+-- >>> let g = satisfy isDigit `sepBy1` literal '.'
+-- >>> parse g "1."
+-- Just ('1' :| "")
+-- >>> parse g "1.2.3."
+-- Just ('1' :| "23")
+-- >>> parse g "."
+-- Nothing
+-- >>> print g ('1' :| "23")  :: String
+-- "1.2.3"
+--
+sepBy1 :: Grammar s a -> Grammar s () -> Grammar s (NonEmpty a)
+sepBy1 g sep = _NonEmpty <<$>> g <<*>> many (sep *>> g)
 
 -- | Consumes or produces a literal character (mapped to '()').
 --
