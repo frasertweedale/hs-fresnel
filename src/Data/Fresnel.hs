@@ -46,6 +46,8 @@ module Data.Fresnel
   , bind
   , (<<$>>)
 
+  , module Data.Fresnel.TH
+
   -- | Re-exports
   , Cons
   ) where
@@ -58,6 +60,8 @@ import Numeric.Natural (Natural)
 
 import Control.Lens hiding (element)
 import Data.List.NonEmpty (NonEmpty(..))
+
+import Data.Fresnel.TH
 
 -- $setup
 -- >>> import Data.Char
