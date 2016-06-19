@@ -46,6 +46,9 @@ module Data.Fresnel
   , bind
   , (<<$>>)
 
+  -- | 'Iso's
+  , _NonEmpty
+
   , module Data.Fresnel.TH
 
   -- | Re-exports
@@ -198,9 +201,10 @@ success a = prism' snd (Just . (a,))
 -- "123"
 --
 many1 :: Grammar s a -> Grammar s (NonEmpty a)
-many1 g = isoTupleNEL <<$>> g <<*>> many g where
-  isoTupleNEL :: Iso' (a, [a]) (NonEmpty a)
-  isoTupleNEL = iso (uncurry (:|)) (\(h :| t) -> (h, t))
+many1 g = _NonEmpty <<$>> g <<*>> many g where
+
+_NonEmpty :: Iso' (a, [a]) (NonEmpty a)
+_NonEmpty = iso (uncurry (:|)) (\(h :| t) -> (h, t))
 
 -- | Sequence two grammars, ignoring the second value.
 --
