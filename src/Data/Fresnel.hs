@@ -23,6 +23,7 @@ module Data.Fresnel
     Grammar
   , parse
   , print
+  , toPrism
 
   -- | Grammar constructors and combinators
   , element
@@ -398,3 +399,8 @@ parse g s = fst <$> preview g s
 --
 print :: Monoid s => Grammar s b -> b -> s
 print g b = review g (b, mempty)
+
+-- | Turn a Grammar into a prism, implicitly adding 'eof'
+--
+toPrism :: (Cons s s a a, Monoid s) => Grammar s b -> Prism' s b
+toPrism g = prism' (print g) (parse (g <<* eof))
