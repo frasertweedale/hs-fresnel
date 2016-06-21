@@ -379,6 +379,8 @@ opt p = iso f g <<$>> p <<+>> success () where
 --
 -- >>> parse eof ""
 -- Just ()
+-- >>> parse (eof *>> eof) ""
+-- Just ()
 -- >>> parse eof "~"
 -- Nothing
 -- >>> print eof () :: String
