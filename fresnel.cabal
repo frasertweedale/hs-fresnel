@@ -57,3 +57,13 @@ test-suite doctest
   build-depends:
     base >= 4 && < 5
     , doctest
+
+benchmark bench-many
+  type: exitcode-stdio-1.0
+  ghc-options:  -O2 -Wall
+  hs-source-dirs: bench
+  main-is: many.hs
+  build-depends:
+    base >= 4 && < 5
+    , text
+    , fresnel
